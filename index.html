@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Ebook — Покупка и аренда книг</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container header-container">
+            <div class="logo">
+                <i class="fas fa-book-open"></i>
+                <span>Ebook</span>
+            </div>
+            <nav class="nav">
+                <a href="index.html" class="nav-link active">Главная</a>
+                <a href="catalog.html" class="nav-link">Каталог</a>
+                <a href="#" class="nav-link">Аренда</a>
+                <a href="favorites.html" class="nav-link">Избранное</a>
+            </nav>
+            <div class="header-actions">
+                <button class="icon-btn" id="searchToggle"><i class="fas fa-search"></i></button>
+                <div style="position: relative;">
+                    <button class="icon-btn cart-btn">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="cart-badge">0</span>
+                    </button>
+                    <div id="cartDropdown" class="cart-dropdown">
+                        <div class="cart-header">
+                            <h3><i class="fas fa-shopping-cart"></i> Моя корзина</h3>
+                        </div>
+                        <div id="cartItems" class="cart-items">
+                            <div class="cart-empty">
+                                <i class="fas fa-shopping-cart"></i>
+                                <p>Корзина пуста</p>
+                                <small>Добавьте книги из каталога</small>
+                            </div>
+                        </div>
+                        <div class="cart-footer">
+                            <div class="cart-total">
+                                <span>Итого:</span>
+                                <span id="cartTotal">0 ₽</span>
+                            </div>
+                            <button id="checkoutBtn" class="cart-checkout-btn">Оформить заказ</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="authButtons">
+                    <button class="btn-outline" id="openLoginModal">Войти</button>
+                </div>
+                <div id="userMenuContainer"></div>
+            </div>
+            <button class="mobile-menu-btn" id="mobileMenuBtn"><i class="fas fa-bars"></i></button>
+        </div>
+        <div class="search-bar" id="searchBar">
+            <div class="container">
+                <input type="text" placeholder="Поиск книг, авторов, жанров..." id="searchInput">
+                <button><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container hero-container">
+                <div class="hero-content">
+                    <h1>Книги без границ</h1>
+                    <p>Покупайте или арендуйте электронные книги в один клик. Тысячи произведений на любой вкус — всегда с вами.</p>
+                    <div class="hero-buttons">
+                        <button class="btn-primary">Начать чтение <i class="fas fa-arrow-right"></i></button>
+                        <button class="btn-secondary">
+                            <a href="catalog.html" class="nav-link">
+                                Каталог
+                            </a>
+                            <i class="fas fa-list-ul"></i>
+                        </button>
+                    </div>
+                    <div class="stats">
+                        <div><span>5000+</span> книг</div>
+                        <div><span>200+</span> авторов</div>
+                        <div><span>98%</span> довольных читателей</div>
+                    </div>
+                </div>
+                <div class="hero-image">
+                    <img src="img/logo.png">
+                </div>
+            </div>
+        </section>
+
+        <section class="features">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Почему Ebook?</h2>
+                    <p>Всё для комфортного чтения и выгодных покупок</p>
+                </div>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <i class="fas fa-shopping-cart"></i>
+                        <h3>Покупка навсегда</h3>
+                        <p>Приобретайте книги и оставайтесь с ними навсегда в вашей личной библиотеке.</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-calendar-alt"></i>
+                        <h3>Гибкая аренда</h3>
+                        <p>Аренда от 7 до 30 дней. Продлите, если не успели дочитать.</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-glasses"></i>
+                        <h3>Удобный ридер</h3>
+                        <p>Встроенный ридер с настройками шрифта, фона и ночным режимом.</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-sync-alt"></i>
+                        <h3>Кроссплатформенность</h3>
+                        <p>Читайте на телефоне, планшете или компьютере. Прогресс синхронизируется.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="catalog-preview">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Популярные книги</h2>
+                    <p>Выбор читателей в этом месяце</p>
+                </div>
+                <div class="books-grid" id="booksGrid">
+                    <!-- Книги будут подгружены через JS -->
+                </div>
+                <div class="catalog-footer" style="text-align: center; margin-top: 40px;">
+                    <button class="btn-outline">
+                        <a href="catalog.html" class="nav-link">
+                                Смотреть весь каталог
+                        </a> <i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+        </section>
+
+        <section class="rent-cta">
+            <div class="container rent-container">
+                <div class="rent-content">
+                    <span class="rent-badge">Экономьте до 70%</span>
+                    <h2>Аренда книг — выгодно</h2>
+                    <p>Не уверены, что книга вам понравится? Возьмите в аренду по цене чашки кофе. А если полюбите — выкупите с вычетом арендной платы.</p>
+                    <ul class="rent-list">
+                        <li><i class="fas fa-check-circle"></i> 7 дней — 99 ₽</li>
+                        <li><i class="fas fa-check-circle"></i> 14 дней — 169 ₽</li>
+                        <li><i class="fas fa-check-circle"></i> 30 дней — 299 ₽</li>
+                    </ul>
+                    <button class="btn-primary">Выбрать книгу в аренду</button>
+                </div>
+                <div class="rent-image">
+                    <img src="img/logo_rent.png">
+                </div>
+            </div>
+        </section>
+
+        <section class="testimonials">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Читатели о нас</h2>
+                    <p>Более 10 000 отзывов</p>
+                </div>
+                <div class="testimonial-slider">
+                    <div class="testimonial-card">
+                        <div class="rating">★★★★★</div>
+                        <p>"Очень удобно, что можно сначала арендовать. Так я открыла для себя несколько новых авторов. Интерфейс приятный."</p>
+                        <div class="author">— Анна К.</div>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="rating">★★★★★</div>
+                        <p>"Большой выбор технической литературы в аренде. Для самообразования — идеально. Спасибо Ebook!"</p>
+                        <div class="author">— Дмитрий В.</div>
+                    </div>
+                    <div class="testimonial-card">
+                        <div class="rating">★★★★☆</div>
+                        <p>"Хотелось бы больше книг на английском. Но в целом сервис отличный, читаю каждый день."</p>
+                        <div class="author">— Ольга М.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer-container">
+            <div class="footer-col">
+                <h4>Помощь</h4>
+                    <ul>
+                        <li><a href="faq.html#how-to-rent">Как арендовать</a></li>
+                        <li><a href="faq.html#qa">Вопросы и ответы</a></li>
+                        <li><a href="faq.html#rules">Правила сервиса</a></li>
+                        <li><a href="faq.html#support">Поддержка</a></li>
+                    </ul>
+                <div class="logo"><i class="fas fa-book-open"></i> Ebook</div>
+                <p>Ваша цифровая библиотека. Покупайте, арендуйте, читайте где угодно.</p>
+                <div class="socials">
+                    <a href="#"><i class="fab fa-telegram"></i></a>
+                    <a href="#"><i class="fab fa-vk"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>Каталог</h4>
+                <ul>
+                    <li><a href="#">Художественная</a></li>
+                    <li><a href="#">Бизнес-литература</a></li>
+                    <li><a href="#">Психология</a></li>
+                    <li><a href="#">Техническая</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Помощь</h4>
+                <ul>
+                    <li><a href="#">Как арендовать</a></li>
+                    <li><a href="#">Вопросы и ответы</a></li>
+                    <li><a href="#">Правила сервиса</a></li>
+                    <li><a href="#">Поддержка</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Контакты</h4>
+                <ul>
+                    <li><i class="fas fa-envelope"></i> support@ebook.ru</li>
+                    <li><i class="fas fa-phone-alt"></i> 8 (800) 555-35-35</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2025 Ebook. Все права защищены.</p>
+        </div>
+    </footer>
+
+    <!-- Модальное окно авторизации -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Вход в аккаунт</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            
+            <div id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" placeholder="example@mail.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Пароль</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" required>
+                </div>
+                <button id="loginBtn" class="btn-primary auth-submit">Войти</button>
+                <p class="auth-switch">
+                    Нет аккаунта? <a href="#" id="switchToRegister">Зарегистрироваться</a>
+                </p>
+                <p class="auth-switch">
+                    <a href="#" id="forgotPassword">Забыли пароль?</a>
+                </p>
+            </div>
+            
+            <div id="registerForm" class="auth-form" style="display: none;">
+                <div class="form-group">
+                    <label for="regUsername">Имя пользователя</label>
+                    <input type="text" id="regUsername" placeholder="Иван Иванов" required>
+                </div>
+                <div class="form-group">
+                    <label for="regEmail">Email</label>
+                    <input type="email" id="regEmail" placeholder="example@mail.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="regPassword">Пароль</label>
+                    <input type="password" id="regPassword" placeholder="минимум 6 символов" required>
+                </div>
+                <div class="form-group">
+                    <label for="regConfirmPassword">Подтвердите пароль</label>
+                    <input type="password" id="regConfirmPassword" placeholder="••••••••" required>
+                </div>
+                <button id="registerBtn" class="btn-primary auth-submit">Зарегистрироваться</button>
+                <p class="auth-switch">
+                    Уже есть аккаунт? <a href="#" id="switchToLogin">Войти</a>
+                </p>
+            </div>
+            
+            <div id="resetForm" class="auth-form" style="display: none;">
+                <div class="form-group">
+                    <label for="resetEmail">Email</label>
+                    <input type="email" id="resetEmail" placeholder="example@mail.com" required>
+                </div>
+                <button id="resetBtn" class="btn-primary auth-submit">Сбросить пароль</button>
+                <p class="auth-switch">
+                    <a href="#" id="backToLogin">Вернуться ко входу</a>
+                </p>
+            </div>
+            
+            <div id="authMessage" class="auth-message"></div>
+        </div>
+    </div>
+
+    <!-- Профиль пользователя -->
+    <div id="userMenu" class="user-menu" style="display: none;">
+        <div class="user-info">
+            <i class="fas fa-user-circle"></i>
+            <span id="userName"></span>
+        </div>
+        <div class="user-dropdown">
+            <a href="#" id="userProfileBtn"><i class="fas fa-user"></i> Профиль</a>
+            <a href="#" id="userOrdersBtn"><i class="fas fa-book"></i> Мои книги</a>
+            <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Выйти</a>
+        </div>
+    </div>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
