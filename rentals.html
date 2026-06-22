@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Каталог книг — Ebook</title>
+    <title>Аренда — Ebook</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="catalog.css">
+    <link rel="stylesheet" href="rentals.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
@@ -18,8 +18,8 @@
             </div>
             <nav class="nav">
                 <a href="index.html" class="nav-link">Главная</a>
-                <a href="catalog.html" class="nav-link active">Каталог</a>
-                <a href="rentals.html" class="nav-link">Аренда</a>
+                <a href="catalog.html" class="nav-link">Каталог</a>
+                <a href="rentals.html" class="nav-link active">Аренда</a>
                 <a href="favorites.html" class="nav-link">Избранное</a>
             </nav>
             <div class="header-actions">
@@ -58,7 +58,7 @@
         </div>
         <div class="search-bar" id="searchBar">
             <div class="container">
-                <input type="text" placeholder="Поиск книг, авторов, жанров..." id="searchInput">
+                <input type="text" placeholder="Поиск в аренде..." id="searchInput">
                 <button><i class="fas fa-search"></i></button>
             </div>
         </div>
@@ -70,70 +70,31 @@
             <div class="container">
                 <a href="index.html">Главная</a>
                 <span>/</span>
-                <span class="current">Каталог</span>
+                <span class="current">Аренда</span>
             </div>
         </div>
 
-        <!-- Заголовок каталога -->
-        <section class="catalog-header">
+        <!-- Заголовок -->
+        <section class="rentals-header">
             <div class="container">
-                <h1>Каталог книг</h1>
-                <p>Выберите книгу для покупки или аренды</p>
+                <h1><i class="fas fa-calendar-alt" style="color: #2a5f5b;"></i> Мои аренды</h1>
+                <p>Книги, которые вы арендовали</p>
             </div>
         </section>
 
-        <!-- Фильтры -->
-        <section class="filters-section">
+        <!-- Фильтры аренды -->
+        <section class="rentals-filters">
             <div class="container">
                 <div class="filters-wrapper">
                     <div class="filter-group">
-                        <label for="genreFilter">Жанр</label>
-                        <select id="genreFilter">
-                            <option value="all">Все жанры</option>
-                            <option value="классика">Классика</option>
-                            <option value="фантастика">Фантастика</option>
-                            <option value="бизнес">Бизнес-литература</option>
-                            <option value="приключения">Приключения</option>
-                            <option value="философия">Философия</option>
-                            <option value="психология">Психология</option>
-                            <option value="финансы">Финансы</option>
+                        <label for="statusFilter">Статус</label>
+                        <select id="statusFilter">
+                            <option value="all">Все</option>
+                            <option value="active">Активные</option>
+                            <option value="expired">Просроченные</option>
+                            <option value="returned">Возвращенные</option>
                         </select>
                     </div>
-
-                    <div class="filter-group">
-                        <label for="sortFilter">Сортировка</label>
-                        <select id="sortFilter">
-                            <option value="popular">По популярности</option>
-                            <option value="price_asc">Сначала дешёвые</option>
-                            <option value="price_desc">Сначала дорогие</option>
-                            <option value="title">По названию</option>
-                            <option value="new">Сначала новые</option>
-                        </select>
-                    </div>
-
-                    <div class="filter-group price-filter">
-                        <label>Цена</label>
-                        <div class="price-inputs">
-                            <input type="number" id="priceMin" placeholder="От" min="0">
-                            <span>—</span>
-                            <input type="number" id="priceMax" placeholder="До" min="0">
-                        </div>
-                    </div>
-
-                    <div class="filter-group">
-                        <label>Тип</label>
-                        <div class="type-filters">
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="filterBuy" checked>
-                                Покупка
-                            </label>
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="filterRent" checked>
-                                Аренда
-                            </label>
-                        </div>
-                    </div>
-
                     <button id="applyFiltersBtn" class="btn-primary">Применить</button>
                     <button id="resetFiltersBtn" class="btn-outline">Сбросить</button>
                 </div>
@@ -141,20 +102,19 @@
         </section>
 
         <!-- Результаты -->
-        <section class="catalog-results">
+        <section class="rentals-results">
             <div class="container">
                 <div class="results-header">
                     <span id="resultsCount">Загрузка...</span>
-                    <div class="view-options">
-                        <button class="view-btn active" data-view="grid"><i class="fas fa-th"></i></button>
-                        <button class="view-btn" data-view="list"><i class="fas fa-list"></i></button>
-                    </div>
                 </div>
-                <div class="books-grid" id="booksGrid">
-                    <!-- Книги будут подгружены через JS -->
+                <div class="rentals-grid" id="rentalsGrid">
+                    <!-- Аренды будут подгружены через JS -->
                 </div>
-                <div id="pagination" class="pagination">
-                    <!-- Пагинация -->
+                <div id="emptyState" class="empty-state" style="display: none;">
+                    <i class="fas fa-calendar-alt" style="font-size: 4rem; color: #cbd5e1; margin-bottom: 20px; display: block;"></i>
+                    <h2>У вас пока нет арендованных книг</h2>
+                    <p>Перейдите в каталог и арендуйте книгу, которая вам понравилась</p>
+                    <a href="catalog.html" class="btn-primary" style="margin-top: 16px;">Перейти в каталог</a>
                 </div>
             </div>
         </section>
@@ -263,7 +223,6 @@
                     <a href="#" id="backToLogin">Вернуться ко входу</a>
                 </p>
             </div>
-            
             <div id="authMessage" class="auth-message"></div>
         </div>
     </div>
@@ -282,6 +241,6 @@
         </div>
     </div>
 
-    <script type="module" src="catalog.js"></script>
+    <script type="module" src="rentals.js"></script>
 </body>
 </html>

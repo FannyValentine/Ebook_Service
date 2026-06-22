@@ -19,7 +19,7 @@
             <nav class="nav">
                 <a href="index.html" class="nav-link">Главная</a>
                 <a href="catalog.html" class="nav-link">Каталог</a>
-                <a href="#" class="nav-link">Аренда</a>
+                <a href="rentals.html" class="nav-link">Аренда</a>
                 <a href="favorites.html" class="nav-link active">Избранное</a>
             </nav>
             <div class="header-actions">
@@ -115,20 +115,22 @@
             <div class="footer-col">
                 <h4>Каталог</h4>
                 <ul>
-                    <li><a href="#">Художественная</a></li>
-                    <li><a href="#">Бизнес-литература</a></li>
-                    <li><a href="#">Психология</a></li>
-                    <li><a href="#">Техническая</a></li>
+                    <li><a href="catalog.html?genre=классика">Классика</a></li>
+                    <li><a href="catalog.html?genre=фантастика">Фантастика</a></li>
+                    <li><a href="catalog.html?genre=бизнес">Бизнес-литература</a></li>
+                    <li><a href="catalog.html?genre=приключения">Приключения</a></li>
+                    <li><a href="catalog.html?genre=философия">Философия</a></li>
+                    <li><a href="catalog.html?genre=психология">Психология</a></li>
                 </ul>
             </div>
             <div class="footer-col">
                 <h4>Помощь</h4>
-                <ul>
-                    <li><a href="#">Как арендовать</a></li>
-                    <li><a href="#">Вопросы и ответы</a></li>
-                    <li><a href="#">Правила сервиса</a></li>
-                    <li><a href="#">Поддержка</a></li>
-                </ul>
+                    <ul>
+                        <li><a href="faq.html#how-to-rent">Как арендовать</a></li>
+                        <li><a href="faq.html#qa">Вопросы и ответы</a></li>
+                        <li><a href="faq.html#rules">Правила сервиса</a></li>
+                        <li><a href="faq.html#support">Поддержка</a></li>
+                    </ul>
             </div>
             <div class="footer-col">
                 <h4>Контакты</h4>
@@ -214,10 +216,12 @@
             <span id="userName"></span>
         </div>
         <div class="user-dropdown">
+            <div class="user-dropdown">
             <a href="#" id="userProfileBtn"><i class="fas fa-user"></i> Профиль</a>
-            <a href="#" id="userOrdersBtn"><i class="fas fa-book"></i> Мои книги</a>
+            <a href="rentals.html"><i class="fas fa-calendar-alt"></i> Мои аренды</a>
             <a href="favorites.html"><i class="fas fa-heart"></i> Избранное</a>
             <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Выйти</a>
+        </div>
         </div>
     </div>
 

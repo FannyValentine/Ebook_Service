@@ -225,9 +225,9 @@
             </div>
             <nav class="nav">
                 <a href="index.html" class="nav-link">Главная</a>
-                <a href="index.html#catalog" class="nav-link">Каталог</a>
-                <a href="index.html#rent" class="nav-link">Аренда</a>
-                <a href="faq.html" class="nav-link active">Помощь</a>
+                <a href="catalog.html" class="nav-link active">Каталог</a>
+                <a href="rentals.html" class="nav-link">Аренда</a>
+                <a href="favorites.html" class="nav-link">Избранное</a>
             </nav>
             <div class="header-actions">
                 <button class="icon-btn" id="searchToggle"><i class="fas fa-search"></i></button>
@@ -286,7 +286,6 @@
                 <button class="faq-nav-btn" data-section="qa">💬 Вопросы и ответы</button>
                 <button class="faq-nav-btn" data-section="rules">⚖️ Правила сервиса</button>
                 <button class="faq-nav-btn" data-section="support">📞 Поддержка</button>
-                <button class="faq-nav-btn" data-section="how-to-rent">💰 Как арендовать</button>
             </div>
         </div>
 
@@ -600,20 +599,6 @@
                 <h2><i class="fas fa-headset"></i> Служба поддержки</h2>
                 <div class="support-grid">
                     <div class="contact-card">
-                        <i class="fas fa-envelope"></i>
-                        <h3>Email</h3>
-                        <p>По общим вопросам и жалобам</p>
-                        <a href="mailto:support@ebook.ru" style="color: #1e3c3a; font-weight: 600;">support@ebook.ru</a>
-                        <p style="font-size: 0.85rem; margin-top: 12px;">Ответ в течение 24 часов</p>
-                    </div>
-                    <div class="contact-card">
-                        <i class="fas fa-telegram"></i>
-                        <h3>Telegram</h3>
-                        <p>Быстрые вопросы и поддержка</p>
-                        <a href="#" style="color: #1e3c3a; font-weight: 600;">@ebook_support_bot</a>
-                        <p style="font-size: 0.85rem; margin-top: 12px;">Ответ в течение 1 часа</p>
-                    </div>
-                    <div class="contact-card">
                         <i class="fas fa-phone-alt"></i>
                         <h3>Горячая линия</h3>
                         <p>Технические вопросы</p>
@@ -662,10 +647,12 @@
             <div class="footer-col">
                 <h4>Каталог</h4>
                 <ul>
-                    <li><a href="#">Художественная</a></li>
-                    <li><a href="#">Бизнес-литература</a></li>
-                    <li><a href="#">Психология</a></li>
-                    <li><a href="#">Техническая</a></li>
+                    <li><a href="catalog.html?genre=классика">Классика</a></li>
+                    <li><a href="catalog.html?genre=фантастика">Фантастика</a></li>
+                    <li><a href="catalog.html?genre=бизнес">Бизнес-литература</a></li>
+                    <li><a href="catalog.html?genre=приключения">Приключения</a></li>
+                    <li><a href="catalog.html?genre=философия">Философия</a></li>
+                    <li><a href="catalog.html?genre=психология">Психология</a></li>
                 </ul>
             </div>
             <div class="footer-col">
@@ -1065,7 +1052,8 @@
         </div>
         <div class="user-dropdown">
             <a href="#" id="userProfileBtn"><i class="fas fa-user"></i> Профиль</a>
-            <a href="#" id="userOrdersBtn"><i class="fas fa-book"></i> Мои книги</a>
+            <a href="rentals.html"><i class="fas fa-calendar-alt"></i> Мои аренды</a>
+            <a href="favorites.html"><i class="fas fa-heart"></i> Избранное</a>
             <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Выйти</a>
         </div>
     </div>

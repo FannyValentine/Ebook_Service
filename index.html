@@ -18,7 +18,7 @@
             <nav class="nav">
                 <a href="index.html" class="nav-link active">Главная</a>
                 <a href="catalog.html" class="nav-link">Каталог</a>
-                <a href="#" class="nav-link">Аренда</a>
+                <a href="rentals.html" class="nav-link">Аренда</a>
                 <a href="favorites.html" class="nav-link">Избранное</a>
             </nav>
             <div class="header-actions">
@@ -70,7 +70,10 @@
                     <h1>Книги без границ</h1>
                     <p>Покупайте или арендуйте электронные книги в один клик. Тысячи произведений на любой вкус — всегда с вами.</p>
                     <div class="hero-buttons">
-                        <button class="btn-primary">Начать чтение <i class="fas fa-arrow-right"></i></button>
+                        <button class="btn-primary"; >
+                            <a href="catalog.html" class="nav-link"; style="color: whitesmoke;">
+                                Начать чтение
+                            </a><i class="fas fa-arrow-right"></i></button>
                         <button class="btn-secondary">
                             <a href="catalog.html" class="nav-link">
                                 Каталог
@@ -150,7 +153,9 @@
                         <li><i class="fas fa-check-circle"></i> 14 дней — 169 ₽</li>
                         <li><i class="fas fa-check-circle"></i> 30 дней — 299 ₽</li>
                     </ul>
-                    <button class="btn-primary">Выбрать книгу в аренду</button>
+                    <button class="btn-primary"><a href="catalog.html" class="nav-link"; style="color: whitesmoke;">
+                                Смотреть весь каталог
+                        </a> <i class="fas fa-chevron-right"></i></button></button>
                 </div>
                 <div class="rent-image">
                     <img src="img/logo_rent.png">
@@ -206,10 +211,12 @@
             <div class="footer-col">
                 <h4>Каталог</h4>
                 <ul>
-                    <li><a href="#">Художественная</a></li>
-                    <li><a href="#">Бизнес-литература</a></li>
-                    <li><a href="#">Психология</a></li>
-                    <li><a href="#">Техническая</a></li>
+                    <li><a href="catalog.html?genre=классика">Классика</a></li>
+                    <li><a href="catalog.html?genre=фантастика">Фантастика</a></li>
+                    <li><a href="catalog.html?genre=бизнес">Бизнес-литература</a></li>
+                    <li><a href="catalog.html?genre=приключения">Приключения</a></li>
+                    <li><a href="catalog.html?genre=философия">Философия</a></li>
+                    <li><a href="catalog.html?genre=психология">Психология</a></li>
                 </ul>
             </div>
         </div>
@@ -290,7 +297,8 @@
         </div>
         <div class="user-dropdown">
             <a href="#" id="userProfileBtn"><i class="fas fa-user"></i> Профиль</a>
-            <a href="#" id="userOrdersBtn"><i class="fas fa-book"></i> Мои книги</a>
+            <a href="rentals.html"><i class="fas fa-calendar-alt"></i> Мои аренды</a>
+            <a href="favorites.html"><i class="fas fa-heart"></i> Избранное</a>
             <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Выйти</a>
         </div>
     </div>

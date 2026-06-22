@@ -13,7 +13,7 @@ import {
 let allBooks = [];
 let filteredBooks = [];
 let currentPage = 1;
-const booksPerPage = 15;
+const booksPerPage = 12;
 let currentView = 'grid';
 let favorites = [];
 
@@ -152,6 +152,7 @@ function toggleCart() {
     }
 }
 
+// В script.js и catalog.js в функции checkout
 async function checkout() {
     if (cart.length === 0) {
         showToast('Корзина пуста', 'Добавьте книги перед оформлением', 'error');
@@ -165,10 +166,50 @@ async function checkout() {
         return;
     }
     
-    showToast('Заказ оформлен', 'Спасибо за покупку!', 'success');
-    cart = [];
-    saveCart();
-    toggleCart();
+    try {
+        // Создаем записи аренды для всех товаров типа 'rent'
+        const rentalItems = cart.filter(item => item.type === 'rent');
+        const buyItems = cart.filter(item => item.type === 'buy');
+        
+        // Обрабатываем аренду
+        for (const item of rentalItems) {
+            const endDate = new Date();
+            endDate.setDate(endDate.getDate() + 7); // Аренда на 7 дней по умолчанию
+            
+            const { error: rentalError } = await supabase
+                .from('rentals')
+                .insert([{
+                    user_id: user.id,
+                    book_id: item.id,
+                    book_title: item.title,
+                    book_author: item.author,
+                    book_cover: item.cover_image,
+                    rental_price: item.price,
+                    rental_days: 7,
+                    start_date: new Date(),
+                    end_date: endDate,
+                    is_active: true,
+                    is_returned: false
+                }]);
+            
+            if (rentalError) {
+                console.error('Ошибка создания аренды:', rentalError);
+                showToast('Ошибка', 'Не удалось создать аренду для ' + item.title, 'error');
+                return;
+            }
+        }
+        
+        // Здесь можно добавить обработку покупок (buyItems)
+        // Например, запись в таблицу purchases
+        
+        showToast('Заказ оформлен', 'Спасибо за покупку!', 'success');
+        cart = [];
+        saveCart();
+        toggleCart();
+    } catch (error) {
+        console.error('Ошибка оформления заказа:', error);
+        showToast('Ошибка', 'Не удалось оформить заказ', 'error');
+    }
 }
 
 // ========== ЗАГРУЗКА КНИГ ==========
@@ -736,6 +777,13 @@ async function handleResetPassword() {
     }
 }
 
+function getUrlParams() {
+    const params = new URLSearchParams(window.location.search);
+    return {
+        genre: params.get('genre') || 'all'
+    };
+}
+
 function setupAuth() {
     const openModalBtn = document.getElementById('openLoginModal');
     if (openModalBtn) openModalBtn.addEventListener('click', openModal);
@@ -822,7 +870,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('filterRent').checked = true;
         filterBooks();
     });
-    
+    const urlParams = getUrlParams();
+    if (urlParams.genre !== 'all') {
+        document.getElementById('genreFilter').value = urlParams.genre;
+        filterBooks();
+    }
     const cartBtn = document.querySelector('.cart-btn');
     if (cartBtn) {
         cartBtn.addEventListener('click', (e) => {

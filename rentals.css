@@ -1,0 +1,393 @@
+/* ========== СТРАНИЦА АРЕНДЫ ========== */
+.rentals-header {
+    padding: 40px 0 20px;
+    background: linear-gradient(135deg, #fefcf7, #f9f7f2);
+}
+
+.rentals-header h1 {
+    margin-bottom: 8px;
+}
+
+.rentals-header h1 i {
+    margin-right: 12px;
+}
+
+.rentals-header p {
+    color: #5a6e7c;
+    font-size: 1.1rem;
+}
+
+/* Фильтры */
+.rentals-filters {
+    padding: 20px 0 30px;
+    background: #fefcf7;
+    border-bottom: 1px solid #f0ede8;
+}
+
+.rentals-filters .filters-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: flex-end;
+    background: white;
+    padding: 20px 24px;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+}
+
+.rentals-filters .filter-group {
+    flex: 1;
+    min-width: 150px;
+}
+
+.rentals-filters .filter-group label {
+    display: block;
+    font-weight: 600;
+    color: #1e2a3a;
+    font-size: 0.85rem;
+    margin-bottom: 6px;
+}
+
+.rentals-filters .filter-group select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    background: white;
+    transition: 0.2s;
+    color: #1e2a3a;
+}
+
+.rentals-filters .filter-group select:focus {
+    outline: none;
+    border-color: #1e3c3a;
+    box-shadow: 0 0 0 3px rgba(30,60,58,0.08);
+}
+
+.rentals-filters .btn-primary,
+.rentals-filters .btn-outline {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+}
+
+/* Результаты */
+.rentals-results {
+    padding: 40px 0 60px;
+}
+
+.rentals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+}
+
+.rental-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    transition: 0.3s;
+    display: flex;
+    flex-direction: column;
+}
+
+.rental-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+}
+
+.rental-cover {
+    height: 200px;
+    background: #eef2f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+}
+
+.rental-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.rental-status {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.rental-status.active {
+    background: rgba(16, 185, 129, 0.9);
+    color: white;
+}
+
+.rental-status.expired {
+    background: rgba(239, 68, 68, 0.9);
+    color: white;
+}
+
+.rental-status.returned {
+    background: rgba(148, 163, 184, 0.9);
+    color: white;
+}
+
+.rental-status.expiring {
+    background: rgba(245, 158, 11, 0.9);
+    color: white;
+}
+
+.rental-info {
+    padding: 18px 20px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.rental-title {
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 4px;
+    color: #1e2a3a;
+}
+
+.rental-author {
+    color: #5a6e7c;
+    font-size: 0.85rem;
+    margin-bottom: 12px;
+}
+
+.rental-details {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+    color: #334155;
+}
+
+.rental-details .detail-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rental-details .detail-item i {
+    width: 18px;
+    color: #2a5f5b;
+}
+
+.rental-days-left {
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    display: inline-block;
+    font-size: 0.85rem;
+    margin-top: 4px;
+}
+
+.rental-days-left.green {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.rental-days-left.yellow {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.rental-days-left.red {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.rental-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+    border-top: 1px solid #f0ede8;
+    padding-top: 16px;
+}
+
+.rental-actions .btn-return {
+    background: #1e3c3a;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: 0.2s;
+    flex: 1;
+}
+
+.rental-actions .btn-return:hover {
+    background: #2a5f5b;
+    transform: translateY(-2px);
+}
+
+.rental-actions .btn-extend {
+    background: #eef2ff;
+    color: #1e3c3a;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: 0.2s;
+    flex: 1;
+}
+
+.rental-actions .btn-extend:hover {
+    background: #dde6f0;
+}
+
+.rental-actions .btn-return:disabled,
+.rental-actions .btn-extend:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+}
+
+.empty-state h2 {
+    color: #1e2a3a;
+    margin-bottom: 12px;
+}
+
+.empty-state p {
+    color: #5a6e7c;
+    font-size: 1.1rem;
+}
+
+.results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+}
+
+#resultsCount {
+    font-weight: 600;
+    color: #1e2a3a;
+}
+
+/* Адаптив */
+@media (max-width: 768px) {
+    .rentals-header {
+        padding: 24px 0 16px;
+    }
+    
+    .rentals-header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .rentals-filters .filters-wrapper {
+        flex-direction: column;
+        gap: 12px;
+        padding: 16px;
+    }
+    
+    .rentals-filters .filter-group {
+        min-width: 100%;
+    }
+    
+    .rentals-filters .btn-primary,
+    .rentals-filters .btn-outline {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .rentals-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .rental-actions {
+        flex-direction: column;
+    }
+    
+    .empty-state {
+        padding: 40px 20px;
+    }
+}
+    /* ========== СТИЛИ ДЛЯ ССЫЛОК В АРЕНДЕ ========== */
+.rentals-header a,
+.rentals-results a,
+.breadcrumbs a,
+.rental-card a,
+.empty-state a {
+    color: #1e3c3a;
+    text-decoration: none;
+    transition: 0.2s;
+}
+
+.rentals-header a:hover,
+.rentals-results a:hover,
+.breadcrumbs a:hover,
+.rental-card a:hover,
+.empty-state a:hover {
+    color: #2a5f5b;
+    text-decoration: underline;
+}
+
+/* Стили для хлебных крошек */
+.breadcrumbs a {
+    color: #5a6e7c;
+}
+
+.breadcrumbs a:hover {
+    color: #1e3c3a;
+}
+
+.breadcrumbs .current {
+    color: #1e3c3a;
+    font-weight: 600;
+}
+
+/* Стили для кнопок в карточке аренды */
+.rental-actions .btn-return,
+.rental-actions .btn-extend {
+    color: white;
+    text-decoration: none;
+}
+
+.rental-actions .btn-return:hover,
+.rental-actions .btn-extend:hover {
+    text-decoration: none;
+    color: white;
+}
+
+.rental-actions .btn-extend {
+    color: #1e3c3a;
+}
+
+.rental-actions .btn-extend:hover {
+    color: #1e3c3a;
+}
+
+/* Стили для кнопки в пустом состоянии */
+.empty-state .btn-primary {
+    color: white;
+    text-decoration: none;
+}
+
+.empty-state .btn-primary:hover {
+    color: white;
+    text-decoration: none;
+}

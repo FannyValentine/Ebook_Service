@@ -1,4 +1,4 @@
-// script.js
+// rentals.js
 import { supabase } from './supabase.js';
 import { 
     registerUser, 
@@ -9,17 +9,19 @@ import {
     resetPassword
 } from './auth.js';
 
+// ========== СОСТОЯНИЕ ==========
+let allRentals = [];
+let filteredRentals = [];
+
 // ========== КОРЗИНА ==========
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
-// Сохранение корзины
 function saveCart() {
     localStorage.setItem('cart', JSON.stringify(cart));
     updateCartBadge();
     renderCartDropdown();
 }
 
-// Обновить значок корзины
 function updateCartBadge() {
     const badge = document.querySelector('.cart-badge');
     if (badge) {
@@ -29,7 +31,6 @@ function updateCartBadge() {
     }
 }
 
-// Показать уведомление
 function showToast(title, message, type = 'success') {
     const existingToast = document.querySelector('.toast-notification');
     if (existingToast) existingToast.remove();
@@ -54,7 +55,6 @@ function showToast(title, message, type = 'success') {
     }, 3000);
 }
 
-// Добавить в корзину
 function addToCart(book, type, price) {
     const existingItem = cart.find(item => item.id === book.id && item.type === type);
     
@@ -77,14 +77,12 @@ function addToCart(book, type, price) {
     saveCart();
 }
 
-// Удалить из корзины
 function removeFromCart(itemId, type) {
     cart = cart.filter(item => !(item.id === itemId && item.type === type));
     saveCart();
     showToast('Удалено из корзины', 'Товар удален из корзины', 'success');
 }
 
-// Отрисовать корзину
 function renderCartDropdown() {
     const cartItemsContainer = document.getElementById('cartItems');
     const cartTotalSpan = document.getElementById('cartTotal');
@@ -142,7 +140,6 @@ function renderCartDropdown() {
     });
 }
 
-// Переключение корзины
 function toggleCart() {
     const dropdown = document.getElementById('cartDropdown');
     if (dropdown) {
@@ -151,8 +148,6 @@ function toggleCart() {
     }
 }
 
-// Оформление заказа
-// В script.js и catalog.js в функции checkout
 async function checkout() {
     if (cart.length === 0) {
         showToast('Корзина пуста', 'Добавьте книги перед оформлением', 'error');
@@ -166,252 +161,270 @@ async function checkout() {
         return;
     }
     
-    try {
-        // Создаем записи аренды для всех товаров типа 'rent'
-        const rentalItems = cart.filter(item => item.type === 'rent');
-        const buyItems = cart.filter(item => item.type === 'buy');
-        
-        // Обрабатываем аренду
-        for (const item of rentalItems) {
-            const endDate = new Date();
-            endDate.setDate(endDate.getDate() + 7); // Аренда на 7 дней по умолчанию
-            
-            const { error: rentalError } = await supabase
-                .from('rentals')
-                .insert([{
-                    user_id: user.id,
-                    book_id: item.id,
-                    book_title: item.title,
-                    book_author: item.author,
-                    book_cover: item.cover_image,
-                    rental_price: item.price,
-                    rental_days: 7,
-                    start_date: new Date(),
-                    end_date: endDate,
-                    is_active: true,
-                    is_returned: false
-                }]);
-            
-            if (rentalError) {
-                console.error('Ошибка создания аренды:', rentalError);
-                showToast('Ошибка', 'Не удалось создать аренду для ' + item.title, 'error');
-                return;
-            }
-        }
-        
-        // Здесь можно добавить обработку покупок (buyItems)
-        // Например, запись в таблицу purchases
-        
-        showToast('Заказ оформлен', 'Спасибо за покупку!', 'success');
-        cart = [];
-        saveCart();
-        toggleCart();
-    } catch (error) {
-        console.error('Ошибка оформления заказа:', error);
-        showToast('Ошибка', 'Не удалось оформить заказ', 'error');
-    }
+    showToast('Заказ оформлен', 'Спасибо за покупку!', 'success');
+    cart = [];
+    saveCart();
+    toggleCart();
 }
 
-// ========== ЗАГРУЗКА ПОПУЛЯРНЫХ КНИГ (ГЛАВНАЯ СТРАНИЦА) ==========
-async function loadPopularBooks() {
-    try {
-        const { data: books, error } = await supabase
-            .from('popular_books')
-            .select('*')
-            .eq('is_active', true)
-            .order('display_order', { ascending: true });
-        
-        if (error) {
-            console.error('Ошибка загрузки популярных книг:', error);
-            return [];
-        }
-        
-        console.log(`✅ Загружено ${books.length} популярных книг`);
-        return books || [];
-    } catch (error) {
-        console.error('Ошибка подключения:', error);
-        return [];
-    }
-}
-
-// ========== РАБОТА С ИЗБРАННЫМ ==========
-let favorites = [];
-let allBooks = [];
-
-async function loadFavorites() {
+// ========== ЗАГРУЗКА АРЕНД ==========
+async function loadRentals() {
     const user = getCurrentUser();
     if (!user) {
-        favorites = [];
+        allRentals = [];
+        filteredRentals = [];
+        renderRentals();
         return;
     }
     
     try {
-        const { data, error } = await supabase
-            .from('favorites')
-            .select('book_id')
-            .eq('user_id', user.id);
+        const { data: rentals, error } = await supabase
+            .from('rentals')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false });
         
         if (error) {
-            console.error('Ошибка загрузки избранного:', error);
-            favorites = [];
+            console.error('Ошибка загрузки аренд:', error);
+            allRentals = [];
+            filteredRentals = [];
+            renderRentals();
             return;
         }
         
-        favorites = data.map(item => item.book_id);
-        return favorites;
+        allRentals = rentals || [];
+        filteredRentals = [...allRentals];
+        renderRentals();
+        console.log(`✅ Загружено ${allRentals.length} аренд`);
     } catch (error) {
         console.error('Ошибка:', error);
-        favorites = [];
-        return [];
+        allRentals = [];
+        filteredRentals = [];
+        renderRentals();
     }
 }
 
-async function addToFavorites(bookId) {
-    const user = getCurrentUser();
-    if (!user) {
-        showToast('Требуется авторизация', 'Войдите, чтобы добавить в избранное', 'error');
-        setTimeout(() => openModal(), 1500);
-        return false;
+// ========== ФИЛЬТРАЦИЯ ==========
+function filterRentals() {
+    const status = document.getElementById('statusFilter').value;
+    
+    if (status === 'all') {
+        filteredRentals = [...allRentals];
+    } else {
+        filteredRentals = allRentals.filter(rental => {
+            if (status === 'active') {
+                return rental.is_active === true && !rental.is_returned;
+            } else if (status === 'expired') {
+                return rental.is_active === true && !rental.is_returned && new Date(rental.end_date) < new Date();
+            } else if (status === 'returned') {
+                return rental.is_returned === true;
+            }
+            return true;
+        });
     }
+    
+    renderRentals();
+}
+
+// ========== ФУНКЦИИ ДЛЯ РАБОТЫ С АРЕНДОЙ ==========
+
+// Возврат книги
+async function returnBook(rentalId) {
+    if (!confirm('Вы уверены, что хотите вернуть эту книгу?')) return;
     
     try {
         const { error } = await supabase
-            .from('favorites')
-            .insert([{ user_id: user.id, book_id: bookId }]);
+            .from('rentals')
+            .update({ 
+                is_active: false, 
+                is_returned: true,
+                updated_at: new Date()
+            })
+            .eq('id', rentalId);
         
         if (error) {
-            console.error('Ошибка добавления в избранное:', error);
-            showToast('Ошибка', 'Не удалось добавить в избранное', 'error');
-            return false;
+            console.error('Ошибка возврата:', error);
+            showToast('Ошибка', 'Не удалось вернуть книгу', 'error');
+            return;
         }
         
-        favorites.push(bookId);
-        showToast('Добавлено в избранное', 'Книга сохранена в избранном', 'success');
-        // Просто перерисовываем с теми же книгами
-        renderBooks(allBooks);
-        return true;
+        showToast('Книга возвращена', 'Спасибо, что воспользовались нашей библиотекой!', 'success');
+        await loadRentals();
     } catch (error) {
         console.error('Ошибка:', error);
-        return false;
+        showToast('Ошибка', 'Не удалось вернуть книгу', 'error');
     }
 }
 
-async function removeFromFavorites(bookId) {
-    const user = getCurrentUser();
-    if (!user) return false;
+// Продление аренды
+async function extendRental(rentalId, currentEndDate) {
+    const days = parseInt(prompt('На сколько дней продлить аренду? (7, 14 или 30 дней)', '7'));
     
-    try {
-        const { error } = await supabase
-            .from('favorites')
-            .delete()
-            .eq('user_id', user.id)
-            .eq('book_id', bookId);
-        
-        if (error) {
-            console.error('Ошибка удаления из избранного:', error);
-            showToast('Ошибка', 'Не удалось удалить из избранного', 'error');
-            return false;
-        }
-        
-        favorites = favorites.filter(id => id !== bookId);
-        showToast('Удалено из избранного', 'Книга удалена из избранного', 'success');
-        // Просто перерисовываем с теми же книгами
-        renderBooks(allBooks);
-        return true;
-    } catch (error) {
-        console.error('Ошибка:', error);
-        return false;
-    }
-}
-
-function isFavorite(bookId) {
-    return favorites.includes(bookId);
-}
-
-// ========== ФУНКЦИЯ ОТРИСОВКИ ==========
-function renderBooks(books) {
-    const booksContainer = document.getElementById('booksGrid');
-    if (!booksContainer) return;
-    
-    // Сохраняем книги в глобальную переменную
-    allBooks = books;
-    
-    if (!books || books.length === 0) {
-        booksContainer.innerHTML = '<div style="text-align: center; padding: 40px;">📚 Книги не найдены</div>';
+    if (!days || isNaN(days) || days <= 0) {
         return;
     }
     
-    booksContainer.innerHTML = books.map(book => `
-        <div class="book-card" data-id="${book.id}">
-            <div class="book-cover">
-                <img src="${book.cover_image || 'https://placehold.co/300x400/e2e8f0/1e3c3a?text=📖+No+Cover'}" 
-                     alt="${book.title}" 
-                     onerror="this.src='https://placehold.co/300x400/e2e8f0/1e3c3a?text=📖+No+Cover'">
-            </div>
-            <div class="book-info">
-                <div class="book-header">
-                    <div class="book-title">${escapeHtml(book.title)}</div>
-                    <button class="favorite-btn ${isFavorite(book.id) ? 'active' : ''}" data-id="${book.id}">
-                        <i class="fas fa-heart"></i>
-                    </button>
+    const validDays = [7, 14, 30];
+    if (!validDays.includes(days)) {
+        showToast('Ошибка', 'Выберите 7, 14 или 30 дней', 'error');
+        return;
+    }
+    
+    const newEndDate = new Date(currentEndDate);
+    newEndDate.setDate(newEndDate.getDate() + days);
+    
+    try {
+        const { error } = await supabase
+            .from('rentals')
+            .update({ 
+                end_date: newEndDate.toISOString(),
+                updated_at: new Date()
+            })
+            .eq('id', rentalId);
+        
+        if (error) {
+            console.error('Ошибка продления:', error);
+            showToast('Ошибка', 'Не удалось продлить аренду', 'error');
+            return;
+        }
+        
+        showToast('Аренда продлена', `Книга доступна до ${newEndDate.toLocaleDateString()}`, 'success');
+        await loadRentals();
+    } catch (error) {
+        console.error('Ошибка:', error);
+        showToast('Ошибка', 'Не удалось продлить аренду', 'error');
+    }
+}
+
+// ========== ОТРИСОВКА ==========
+function renderRentals() {
+    const container = document.getElementById('rentalsGrid');
+    const emptyState = document.getElementById('emptyState');
+    const resultsCount = document.getElementById('resultsCount');
+    
+    if (!container) return;
+    
+    const now = new Date();
+    
+    if (filteredRentals.length === 0) {
+        container.innerHTML = '';
+        if (emptyState) emptyState.style.display = 'block';
+        if (resultsCount) resultsCount.textContent = 'Нет аренд';
+        return;
+    }
+    
+    if (emptyState) emptyState.style.display = 'none';
+    if (resultsCount) resultsCount.textContent = `${filteredRentals.length} аренд`;
+    
+    container.innerHTML = filteredRentals.map(rental => {
+        const endDate = new Date(rental.end_date);
+        const daysLeft = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));
+        
+        let statusClass = 'active';
+        let statusText = 'Активна';
+        let daysLeftClass = 'green';
+        let daysLeftText = `${daysLeft} дн.`;
+        
+        if (rental.is_returned) {
+            statusClass = 'returned';
+            statusText = 'Возвращена';
+            daysLeftClass = 'green';
+            daysLeftText = 'Возвращена';
+        } else if (daysLeft < 0) {
+            statusClass = 'expired';
+            statusText = 'Просрочена';
+            daysLeftClass = 'red';
+            daysLeftText = `Просрочена на ${Math.abs(daysLeft)} дн.`;
+        } else if (daysLeft <= 3) {
+            statusClass = 'expiring';
+            statusText = 'Скоро закончится';
+            daysLeftClass = 'yellow';
+            daysLeftText = `${daysLeft} дн.`;
+        } else {
+            statusClass = 'active';
+            statusText = 'Активна';
+            daysLeftClass = 'green';
+            daysLeftText = `${daysLeft} дн.`;
+        }
+        
+        const startDate = new Date(rental.start_date);
+        const endDateFormatted = endDate.toLocaleDateString('ru-RU', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
+        
+        const canExtend = !rental.is_returned && rental.is_active && daysLeft > 0;
+        const canReturn = !rental.is_returned && rental.is_active;
+        
+        return `
+            <div class="rental-card">
+                <div class="rental-cover">
+                    <img src="${rental.book_cover || 'https://placehold.co/300x400/e2e8f0/1e3c3a?text=📖'}" 
+                         alt="${escapeHtml(rental.book_title)}"
+                         onerror="this.src='https://placehold.co/300x400/e2e8f0/1e3c3a?text=📖'">
+                    <span class="rental-status ${statusClass}">${statusText}</span>
                 </div>
-                <div class="book-author">${escapeHtml(book.author)}</div>
-                <div class="book-description">${book.description ? escapeHtml(book.description.substring(0, 80)) + '...' : ''}</div>
-                <div class="book-actions">
-                    <span class="price">${book.purchase_price || book.price} ₽</span>
-                    <div>
-                        <button class="rent-btn" data-id="${book.id}" data-title="${escapeHtml(book.title)}" data-author="${escapeHtml(book.author)}" data-cover="${book.cover_image || ''}" data-price="${book.rent_price || book.rent}">Аренда ${book.rent_price || book.rent} ₽</button>
-                        <button class="buy-btn" data-id="${book.id}" data-title="${escapeHtml(book.title)}" data-author="${escapeHtml(book.author)}" data-cover="${book.cover_image || ''}" data-price="${book.purchase_price || book.price}">Купить</button>
+                <div class="rental-info">
+                    <div class="rental-title">${escapeHtml(rental.book_title)}</div>
+                    <div class="rental-author">${escapeHtml(rental.book_author)}</div>
+                    <div class="rental-details">
+                        <div class="detail-item">
+                            <i class="fas fa-calendar-day"></i>
+                            <span>Аренда до: ${endDateFormatted}</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-clock"></i>
+                            <span>Дней: ${rental.rental_days}</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-ruble-sign"></i>
+                            <span>Цена: ${rental.rental_price} ₽</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="rental-days-left ${daysLeftClass}">${daysLeftText}</span>
+                        </div>
                     </div>
+                    ${!rental.is_returned ? `
+                        <div class="rental-actions">
+                            <button class="btn-return" onclick="window.returnBook(${rental.id})" ${!canReturn ? 'disabled' : ''}>
+                                <i class="fas fa-undo"></i> Вернуть
+                            </button>
+                            <button class="btn-extend" onclick="window.extendRental(${rental.id}, '${rental.end_date}')" ${!canExtend ? 'disabled' : ''}>
+                                <i class="fas fa-plus"></i> Продлить
+                            </button>
+                        </div>
+                    ` : `
+                        <div style="text-align: center; padding: 8px 0; color: #5a6e7c; font-size: 0.9rem;">
+                            <i class="fas fa-check-circle" style="color: #10b981;"></i>
+                            Книга возвращена
+                        </div>
+                    `}
                 </div>
             </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
     
-    // Обработчики для кнопок избранного
-    document.querySelectorAll('.favorite-btn').forEach(btn => {
-        btn.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const bookId = parseInt(btn.dataset.id);
-            if (btn.classList.contains('active')) {
-                await removeFromFavorites(bookId);
-                btn.classList.remove('active');
-            } else {
-                await addToFavorites(bookId);
-                btn.classList.add('active');
-            }
+    // Добавляем обработчики для кнопок
+    document.querySelectorAll('.btn-return').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const id = parseInt(btn.dataset.id || btn.onclick?.toString().match(/\d+/)?.[0]);
+            if (id) returnBook(id);
         });
     });
     
-    // Обработчики для кнопок корзины
-    document.querySelectorAll('.rent-btn').forEach(btn => {
+    document.querySelectorAll('.btn-extend').forEach(btn => {
         btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const book = {
-                id: parseInt(btn.dataset.id),
-                title: btn.dataset.title,
-                author: btn.dataset.author,
-                cover_image: btn.dataset.cover
-            };
-            const price = parseInt(btn.dataset.price);
-            addToCart(book, 'rent', price);
-        });
-    });
-    
-    document.querySelectorAll('.buy-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const book = {
-                id: parseInt(btn.dataset.id),
-                title: btn.dataset.title,
-                author: btn.dataset.author,
-                cover_image: btn.dataset.cover
-            };
-            const price = parseInt(btn.dataset.price);
-            addToCart(book, 'buy', price);
+            const id = parseInt(btn.dataset.id || btn.onclick?.toString().match(/\d+/)?.[0]);
+            const endDate = btn.dataset.endDate;
+            if (id && endDate) extendRental(id, endDate);
         });
     });
 }
+
+// Глобальные функции для inline обработчиков
+window.returnBook = returnBook;
+window.extendRental = extendRental;
 
 // ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
 function escapeHtml(str) {
@@ -442,17 +455,17 @@ function setupSearch() {
         let searchTimeout;
         searchInput.addEventListener('input', async (e) => {
             clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(async () => {
+            searchTimeout = setTimeout(() => {
                 const query = e.target.value.toLowerCase();
                 if (query.length === 0) {
-                    renderBooks(allBooks);
+                    filteredRentals = [...allRentals];
                 } else {
-                    const filtered = allBooks.filter(book => 
-                        book.title.toLowerCase().includes(query) || 
-                        book.author.toLowerCase().includes(query)
+                    filteredRentals = allRentals.filter(rental => 
+                        rental.book_title.toLowerCase().includes(query) || 
+                        rental.book_author.toLowerCase().includes(query)
                     );
-                    renderBooks(filtered);
                 }
+                renderRentals();
             }, 500);
         });
     }
@@ -497,7 +510,6 @@ function mobileMenu() {
 }
 
 // ========== УПРАВЛЕНИЕ АВТОРИЗАЦИЕЙ ==========
-
 const modal = document.getElementById('authModal');
 const loginForm = document.getElementById('loginForm');
 const registerForm = document.getElementById('registerForm');
@@ -633,9 +645,7 @@ async function handleLogin() {
         setTimeout(async () => {
             closeModal();
             await updateUserUI();
-            await loadFavorites();
-            const books = await loadPopularBooks();
-            renderBooks(books);
+            await loadRentals();
         }, 1500);
     } else {
         showAuthMessage(result.error || 'Неверный email или пароль');
@@ -647,9 +657,9 @@ async function handleLogout() {
     if (result.success) {
         showToast('Выход из аккаунта', 'Вы успешно вышли', 'success');
         await updateUserUI();
-        favorites = [];
-        const books = await loadPopularBooks();
-        renderBooks(books);
+        allRentals = [];
+        filteredRentals = [];
+        renderRentals();
         cart = [];
         saveCart();
     } else {
@@ -735,34 +745,27 @@ function setupAuth() {
     });
 }
 
-// ========== ЗАПУСК ==========
+// ========== ИНИЦИАЛИЗАЦИЯ ==========
 document.addEventListener('DOMContentLoaded', async () => {
-    console.log('🚀 Страница загружена, инициализация...');
+    console.log('🚀 Страница аренды загружена, инициализация...');
     
     setupAuth();
     
     await checkCurrentUser();
     await updateUserUI();
-    await loadFavorites();
-    
-    const booksContainer = document.getElementById('booksGrid');
-    if (booksContainer) {
-        booksContainer.innerHTML = '<div style="text-align: center; padding: 40px;">📚 Загрузка популярных книг...</div>';
-    }
-    
-    try {
-        const books = await loadPopularBooks();
-        renderBooks(books);
-    } catch (error) {
-        console.error('Ошибка при загрузке книг:', error);
-        if (booksContainer) {
-            booksContainer.innerHTML = '<div style="text-align: center; padding: 40px; color: red;">❌ Ошибка загрузки книг</div>';
-        }
-    }
+    await loadRentals();
     
     setupSearch();
     mobileMenu();
     
+    // Фильтры
+    document.getElementById('applyFiltersBtn').addEventListener('click', filterRentals);
+    document.getElementById('resetFiltersBtn').addEventListener('click', () => {
+        document.getElementById('statusFilter').value = 'all';
+        filterRentals();
+    });
+    
+    // Корзина
     const cartBtn = document.querySelector('.cart-btn');
     if (cartBtn) {
         cartBtn.addEventListener('click', (e) => {
