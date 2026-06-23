@@ -23,7 +23,6 @@
                 <a href="favorites.html" class="nav-link">Избранное</a>
             </nav>
             <div class="header-actions">
-                <button class="icon-btn" id="searchToggle"><i class="fas fa-search"></i></button>
                 <div style="position: relative;">
                     <button class="icon-btn cart-btn">
                         <i class="fas fa-shopping-cart"></i>
@@ -55,12 +54,6 @@
                 <div id="userMenuContainer"></div>
             </div>
             <button class="mobile-menu-btn" id="mobileMenuBtn"><i class="fas fa-bars"></i></button>
-        </div>
-        <div class="search-bar" id="searchBar">
-            <div class="container">
-                <input type="text" placeholder="Поиск книг, авторов, жанров..." id="searchInput">
-                <button><i class="fas fa-search"></i></button>
-            </div>
         </div>
     </header>
 
@@ -136,6 +129,21 @@
 
                     <button id="applyFiltersBtn" class="btn-primary">Применить</button>
                     <button id="resetFiltersBtn" class="btn-outline">Сбросить</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Поиск -->
+        <section class="search-section">
+            <div class="container">
+                <div class="search-wrapper">
+                    <div class="search-input-wrapper">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" placeholder="Поиск книг, авторов, жанров..." id="searchInput">
+                        <button id="searchClearBtn" class="search-clear" style="display: none;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </section>

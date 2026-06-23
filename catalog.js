@@ -324,29 +324,41 @@ function isFavorite(bookId) {
 }
 
 // ========== ФИЛЬТРАЦИЯ ==========
-function filterBooks() {
+function applyFilters() {
     const genre = document.getElementById('genreFilter').value;
     const sort = document.getElementById('sortFilter').value;
     const priceMin = parseInt(document.getElementById('priceMin').value) || 0;
     const priceMax = parseInt(document.getElementById('priceMax').value) || Infinity;
     const filterBuy = document.getElementById('filterBuy').checked;
     const filterRent = document.getElementById('filterRent').checked;
+    const searchQuery = document.getElementById('searchInput')?.value.trim().toLowerCase() || '';
     
     filteredBooks = allBooks.filter(book => {
+        // Поиск
+        if (searchQuery && !book.title.toLowerCase().includes(searchQuery) && 
+            !book.author.toLowerCase().includes(searchQuery) &&
+            !(book.genre && book.genre.toLowerCase().includes(searchQuery))) {
+            return false;
+        }
+        
+        // Жанр
         if (genre !== 'all' && !book.genre?.toLowerCase().includes(genre)) {
             return false;
         }
         
+        // Цена
         const buyPrice = book.purchase_price || book.price || 0;
         if (buyPrice < priceMin || buyPrice > priceMax) {
             return false;
         }
         
+        // Тип
         if (!filterBuy && !filterRent) return false;
         
         return true;
     });
     
+    // Сортировка
     filteredBooks.sort((a, b) => {
         const priceA = a.purchase_price || a.price || 0;
         const priceB = b.purchase_price || b.price || 0;
@@ -364,7 +376,12 @@ function filterBooks() {
                 return 0;
         }
     });
-    
+}
+
+// Переименуйте старую функцию filterBooks в applyFilters
+// Или создайте новую функцию, которая вызывает applyFilters
+function filterBooks() {
+    applyFilters();
     updateResultsCount();
     currentPage = 1;
     renderBooks();
@@ -391,12 +408,24 @@ function renderBooks() {
         return;
     }
     
-    container.innerHTML = pageBooks.map(book => `
+    // В функции renderBooks найдите блок с описанием и замените на:
+container.innerHTML = pageBooks.map(book => {
+    // Проверяем длину описания
+    const description = book.description || '';
+    const isLong = description.length > 100;
+    const shortDesc = isLong ? escapeHtml(description.substring(0, 100)) + '...' : escapeHtml(description);
+    const fullDesc = escapeHtml(description);
+    const hasDescription = description.length > 0;
+    
+    return `
         <div class="book-card" data-id="${book.id}">
             <div class="book-cover">
                 <img src="${book.cover_image || 'https://placehold.co/300x400/e2e8f0/1e3c3a?text=📖+No+Cover'}" 
                      alt="${book.title}" 
                      onerror="this.src='https://placehold.co/300x400/e2e8f0/1e3c3a?text=📖+No+Cover'">
+                <button class="favorite-btn ${isFavorite(book.id) ? 'active' : ''}" data-id="${book.id}">
+                    <i class="fas fa-heart"></i>
+                </button>
             </div>
             <div class="book-info">
                 <div class="book-header">
@@ -406,7 +435,16 @@ function renderBooks() {
                     </button>
                 </div>
                 <div class="book-author">${escapeHtml(book.author)}</div>
-                <div class="book-description">${book.description ? escapeHtml(book.description.substring(0, 80)) + '...' : ''}</div>
+                ${hasDescription ? `
+                    <div class="book-description" data-full="${fullDesc}" data-short="${shortDesc}">
+                        ${currentView === 'list' ? fullDesc : shortDesc}
+                    </div>
+                    ${isLong && currentView === 'grid' ? `
+                        <button class="description-toggle" onclick="toggleDescription(this)">
+                            Читать далее <i class="fas fa-chevron-down"></i>
+                        </button>
+                    ` : ''}
+                ` : ''}
                 <div class="book-actions">
                     <span class="price">${book.purchase_price || book.price} ₽</span>
                     <div>
@@ -416,7 +454,8 @@ function renderBooks() {
                 </div>
             </div>
         </div>
-    `).join('');
+        `;
+    }).join('');
     
     document.querySelectorAll('.favorite-btn').forEach(btn => {
         btn.addEventListener('click', async (e) => {
@@ -518,37 +557,56 @@ function escapeHtml(str) {
 }
 
 function setupSearch() {
-    const searchToggle = document.getElementById('searchToggle');
-    const searchBar = document.getElementById('searchBar');
     const searchInput = document.getElementById('searchInput');
-    
-    if (searchToggle && searchBar) {
-        searchToggle.addEventListener('click', () => {
-            searchBar.classList.toggle('open');
-            if (searchBar.classList.contains('open')) {
-                searchInput?.focus();
-            }
-        });
-    }
+    const searchClearBtn = document.getElementById('searchClearBtn');
     
     if (searchInput) {
+        // Показываем/скрываем кнопку очистки
+        searchInput.addEventListener('input', () => {
+            if (searchClearBtn) {
+                searchClearBtn.style.display = searchInput.value.length > 0 ? 'flex' : 'none';
+            }
+        });
+        
         let searchTimeout;
-        searchInput.addEventListener('input', async (e) => {
+        searchInput.addEventListener('input', (e) => {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
-                const query = e.target.value.toLowerCase();
+                const query = e.target.value.trim();
+                
+                // Если поиск пустой, показываем все книги
                 if (query.length === 0) {
                     filteredBooks = [...allBooks];
                 } else {
+                    // Ищем по названию, автору и жанру
+                    const searchLower = query.toLowerCase();
                     filteredBooks = allBooks.filter(book => 
-                        book.title.toLowerCase().includes(query) || 
-                        book.author.toLowerCase().includes(query)
+                        book.title.toLowerCase().includes(searchLower) || 
+                        book.author.toLowerCase().includes(searchLower) ||
+                        (book.genre && book.genre.toLowerCase().includes(searchLower))
                     );
                 }
+                
+                // Обновляем фильтры (сохраняем другие параметры)
+                applyFilters();
+                
+                // Обновляем счетчик и отображение
                 updateResultsCount();
                 currentPage = 1;
                 renderBooks();
-            }, 500);
+            }, 400);
+        });
+    }
+    
+    // Очистка поиска
+    if (searchClearBtn) {
+        searchClearBtn.addEventListener('click', () => {
+            if (searchInput) {
+                searchInput.value = '';
+                searchClearBtn.style.display = 'none';
+                // Триггерим событие input для обновления
+                searchInput.dispatchEvent(new Event('input'));
+            }
         });
     }
 }
@@ -890,7 +948,75 @@ document.addEventListener('DOMContentLoaded', async () => {
             dropdown.classList.remove('show');
         }
     });
+    // ========== РАСКРЫТИЕ ОПИСАНИЯ ==========
+window.toggleDescription = function(button) {
+    const description = button.previousElementSibling;
+    if (!description) return;
     
+    const fullText = description.dataset.full;
+    const shortText = description.dataset.short;
+    
+    if (description.textContent === shortText || description.textContent === shortText + '...') {
+        // Раскрываем
+        description.textContent = fullText;
+        description.classList.add('full');
+        button.innerHTML = 'Свернуть <i class="fas fa-chevron-up"></i>';
+    } else {
+        // Сворачиваем
+        description.textContent = shortText;
+        description.classList.remove('full');
+        button.innerHTML = 'Читать далее <i class="fas fa-chevron-down"></i>';
+    }
+};
+
+// Обновляем переключение вида, чтобы обновлять описания
+document.querySelectorAll('.view-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentView = btn.dataset.view;
+        const grid = document.getElementById('booksGrid');
+        if (grid) {
+            if (currentView === 'list') {
+                grid.classList.add('list-view');
+                // Показываем полные описания
+                document.querySelectorAll('.book-description').forEach(desc => {
+                    const fullText = desc.dataset.full;
+                    if (fullText) {
+                        desc.textContent = fullText;
+                        desc.classList.add('full');
+                    }
+                    // Скрываем кнопки "Читать далее"
+                    const toggleBtn = desc.nextElementSibling;
+                    if (toggleBtn && toggleBtn.classList.contains('description-toggle')) {
+                        toggleBtn.style.display = 'none';
+                    }
+                });
+            } else {
+                grid.classList.remove('list-view');
+                // Показываем сокращенные описания
+                document.querySelectorAll('.book-description').forEach(desc => {
+                    const shortText = desc.dataset.short;
+                    if (shortText) {
+                        desc.textContent = shortText;
+                        desc.classList.remove('full');
+                    }
+                    // Показываем кнопки "Читать далее" для длинных описаний
+                    const toggleBtn = desc.nextElementSibling;
+                    if (toggleBtn && toggleBtn.classList.contains('description-toggle')) {
+                        const fullText = desc.dataset.full;
+                        if (fullText && fullText.length > 100) {
+                            toggleBtn.style.display = 'inline-block';
+                            toggleBtn.innerHTML = 'Читать далее <i class="fas fa-chevron-down"></i>';
+                        } else {
+                            toggleBtn.style.display = 'none';
+                        }
+                    }
+                });
+            }
+        }
+    });
+});
     const checkoutBtn = document.getElementById('checkoutBtn');
     if (checkoutBtn) checkoutBtn.addEventListener('click', checkout);
     

@@ -283,3 +283,284 @@
         font-size: 0.9rem;
     }
 }
+    /* ========== ПОИСК В КАТАЛОГЕ ========== */
+.search-section {
+    padding: 20px 0 8px;
+    background: #fefcf7;
+}
+
+.search-wrapper {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: white;
+    border-radius: 60px;
+    border: 2px solid #e8e4dc;
+    transition: 0.3s;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+}
+
+.search-input-wrapper:focus-within {
+    border-color: #1e3c3a;
+    box-shadow: 0 4px 20px rgba(30,60,58,0.08);
+}
+
+.search-icon {
+    position: absolute;
+    left: 18px;
+    color: #94a3b8;
+    font-size: 1rem;
+    pointer-events: none;
+}
+
+.search-input-wrapper input {
+    flex: 1;
+    padding: 14px 50px 14px 48px;
+    border: none;
+    border-radius: 60px;
+    font-size: 1rem;
+    background: transparent;
+    color: #1e2a3a;
+    outline: none;
+}
+
+.search-input-wrapper input::placeholder {
+    color: #94a3b8;
+}
+
+.search-clear {
+    position: absolute;
+    right: 16px;
+    background: none;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 4px 8px;
+    transition: 0.2s;
+    border-radius: 50%;
+}
+
+.search-clear:hover {
+    color: #1e3c3a;
+    background: #f1f5f9;
+}
+
+/* Адаптив для поиска */
+@media (max-width: 768px) {
+    .search-section {
+        padding: 16px 0 4px;
+    }
+    
+    .search-input-wrapper input {
+        padding: 12px 44px 12px 40px;
+        font-size: 0.9rem;
+    }
+    
+    .search-icon {
+        left: 14px;
+        font-size: 0.9rem;
+    }
+    
+    .search-clear {
+        right: 12px;
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .search-wrapper {
+        max-width: 100%;
+    }
+}
+    /* ========== ОПИСАНИЕ В КАРТОЧКЕ ========== */
+.book-description {
+    font-size: 0.85rem;
+    color: #5a6e7c;
+    line-height: 1.5;
+    margin-bottom: 12px;
+    flex-grow: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-wrap: break-word;
+    width: 100%;
+}
+
+/* Для вида списка показываем полное описание */
+.books-grid.list-view .book-description {
+    -webkit-line-clamp: unset;
+    -webkit-box-orient: unset;
+    overflow: visible;
+    text-overflow: unset;
+    max-height: none;
+    display: block;
+}
+
+/* Адаптив для мобильных */
+@media (max-width: 768px) {
+    .book-description {
+        font-size: 0.8rem;
+        -webkit-line-clamp: 2;
+    }
+    
+    /* В виде списка на мобильных тоже показываем полностью */
+    .books-grid.list-view .book-description {
+        -webkit-line-clamp: unset;
+        -webkit-box-orient: unset;
+        overflow: visible;
+        text-overflow: unset;
+        max-height: none;
+        display: block;
+    }
+}
+
+/* Для очень длинных описаний 140 символов*/
+.book-description.full {
+    -webkit-line-clamp: unset;
+    -webkit-box-orient: unset;
+    overflow: visible;
+    text-overflow: unset;
+    max-height: none;
+    display: block;
+}
+
+/* Кнопка "Читать далее" для длинных описаний */
+.description-toggle {
+    background: none;
+    border: none;
+    color: #2a5f5b;
+    font-weight: 600;
+    font-size: 0.8rem;
+    cursor: pointer;
+    padding: 4px 0;
+    transition: 0.2s;
+    display: inline-block;
+    margin-top: 4px;
+}
+
+.description-toggle:hover {
+    color: #1e3c3a;
+    text-decoration: underline;
+}
+
+.description-toggle i {
+    font-size: 0.7rem;
+    margin-left: 4px;
+}
+/* ========== УЛУЧШЕННОЕ ОПИСАНИЕ ========== */
+.book-info {
+    padding: 16px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.book-description {
+    font-size: 0.85rem;
+    color: #5a6e7c;
+    line-height: 1.6;
+    margin-bottom: 12px;
+    flex-grow: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-wrap: break-word;
+    width: 100%;
+    max-height: 4.8em;
+    transition: max-height 0.3s ease;
+}
+
+.book-description.full {
+    -webkit-line-clamp: unset;
+    -webkit-box-orient: unset;
+    overflow: visible;
+    text-overflow: unset;
+    max-height: none;
+    display: block;
+}
+
+/* Для вида списка */
+.books-grid.list-view .book-info {
+    padding: 20px;
+}
+
+.books-grid.list-view .book-description {
+    -webkit-line-clamp: unset;
+    -webkit-box-orient: unset;
+    overflow: visible;
+    text-overflow: unset;
+    max-height: none;
+    display: block;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 16px;
+}
+
+.books-grid.list-view .book-actions {
+    margin-top: auto;
+}
+
+/* Кнопка переключения описания */
+.description-toggle {
+    background: none;
+    border: none;
+    color: #2a5f5b;
+    font-weight: 600;
+    font-size: 0.8rem;
+    cursor: pointer;
+    padding: 4px 0;
+    transition: 0.2s;
+    display: inline-block;
+    margin-top: -4px;
+    margin-bottom: 8px;
+    width: fit-content;
+}
+
+.description-toggle:hover {
+    color: #1e3c3a;
+    text-decoration: underline;
+}
+
+.description-toggle i {
+    font-size: 0.7rem;
+    margin-left: 4px;
+    transition: transform 0.3s ease;
+}
+
+.description-toggle.active i {
+    transform: rotate(180deg);
+}
+
+/* Адаптив для мобильных */
+@media (max-width: 768px) {
+    .book-description {
+        font-size: 0.8rem;
+        -webkit-line-clamp: 2;
+        max-height: 3.2em;
+    }
+    
+    .books-grid.list-view .book-description {
+        font-size: 0.85rem;
+        -webkit-line-clamp: unset;
+        max-height: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .book-description {
+        font-size: 0.75rem;
+        -webkit-line-clamp: 2;
+        max-height: 3em;
+    }
+}
