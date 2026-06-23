@@ -1,5 +1,5 @@
 // auth.js
-import { supabase } from 'G:/Проэкит/supabase.js';
+import { supabase } from './supabase.js';
 
 // Состояние авторизации
 let currentUser = null;
