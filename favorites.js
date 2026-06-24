@@ -237,7 +237,7 @@ async function addToFavorites(bookId) {
         
         favorites.push(bookId);
         showToast('Добавлено в избранное', 'Книга сохранена в избранном', 'success');
-        // Перерисовываем с обновленным списком
+        // Исправлено: сохраняем книги и перерисовываем
         renderBooks();
         return true;
     } catch (error) {
@@ -265,7 +265,7 @@ async function removeFromFavorites(bookId) {
         
         favorites = favorites.filter(id => id !== bookId);
         showToast('Удалено из избранного', 'Книга удалена из избранного', 'success');
-        // Перерисовываем с обновленным списком
+        // Исправлено: сохраняем книги и перерисовываем
         renderBooks();
         return true;
     } catch (error) {
@@ -285,6 +285,12 @@ function renderBooks() {
     const resultsCount = document.getElementById('resultsCount');
     
     if (!container) return;
+    
+    // Проверяем, что allBooks загружены
+    if (!allBooks || allBooks.length === 0) {
+        container.innerHTML = '<div style="text-align: center; padding: 40px;">📚 Загрузка книг...</div>';
+        return;
+    }
     
     // Фильтруем книги: показываем только избранные
     filteredBooks = allBooks.filter(book => isFavorite(book.id));
@@ -326,6 +332,7 @@ function renderBooks() {
         </div>
     `).join('');
     
+    // Обработчики для кнопок избранного
     document.querySelectorAll('.favorite-btn').forEach(btn => {
         btn.addEventListener('click', async (e) => {
             e.stopPropagation();
@@ -334,6 +341,7 @@ function renderBooks() {
         });
     });
     
+    // Обработчики для кнопок корзины
     document.querySelectorAll('.rent-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -363,30 +371,9 @@ function renderBooks() {
     });
 }
 
-// ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
-function escapeHtml(str) {
-    if (!str) return '';
-    return str.replace(/[&<>]/g, function(m) {
-        if (m === '&') return '&amp;';
-        if (m === '<') return '&lt;';
-        if (m === '>') return '&gt;';
-        return m;
-    });
-}
-
+// ========== ПОИСК В ИЗБРАННОМ ==========
 function setupSearch() {
-    const searchToggle = document.getElementById('searchToggle');
-    const searchBar = document.getElementById('searchBar');
     const searchInput = document.getElementById('searchInput');
-    
-    if (searchToggle && searchBar) {
-        searchToggle.addEventListener('click', () => {
-            searchBar.classList.toggle('open');
-            if (searchBar.classList.contains('open')) {
-                searchInput?.focus();
-            }
-        });
-    }
     
     if (searchInput) {
         let searchTimeout;
@@ -394,14 +381,19 @@ function setupSearch() {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
                 const query = e.target.value.toLowerCase();
+                const container = document.getElementById('booksGrid');
+                const emptyState = document.getElementById('emptyState');
+                const resultsCount = document.getElementById('resultsCount');
+                
+                if (!allBooks || allBooks.length === 0) {
+                    return;
+                }
+                
                 const filtered = allBooks.filter(book => 
                     isFavorite(book.id) &&
                     (book.title.toLowerCase().includes(query) || 
                      book.author.toLowerCase().includes(query))
                 );
-                const container = document.getElementById('booksGrid');
-                const emptyState = document.getElementById('emptyState');
-                const resultsCount = document.getElementById('resultsCount');
                 
                 if (filtered.length === 0) {
                     container.innerHTML = '';
@@ -417,7 +409,6 @@ function setupSearch() {
                 } else {
                     if (emptyState) emptyState.style.display = 'none';
                     if (resultsCount) resultsCount.textContent = `${filtered.length} книг в избранном`;
-                    const container = document.getElementById('booksGrid');
                     container.innerHTML = filtered.map(book => `
                         <div class="book-card" data-id="${book.id}">
                             <div class="book-cover">
@@ -484,6 +475,17 @@ function setupSearch() {
             }, 500);
         });
     }
+}
+
+// ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+    });
 }
 
 function mobileMenu() {
@@ -601,29 +603,32 @@ async function updateUserUI() {
     if (user) {
         if (authButtons) authButtons.style.display = 'none';
         if (userMenuContainer && userMenu) {
+            userMenuContainer.innerHTML = '';
             userMenuContainer.appendChild(userMenu);
             userMenu.style.display = 'block';
             if (userName) userName.textContent = user.username || user.email?.split('@')[0] || 'Пользователь';
             
-            // Добавляем обработчик клика по пользователю
             const userInfo = userMenu.querySelector('.user-info');
             const dropdown = userMenu.querySelector('.user-dropdown');
             
-            // Удаляем старые обработчики, чтобы не было дублирования
             const newUserInfo = userInfo.cloneNode(true);
             userInfo.parentNode.replaceChild(newUserInfo, userInfo);
             
-            newUserInfo.addEventListener('click', (e) => {
+            newUserInfo.addEventListener('click', function(e) {
                 e.stopPropagation();
+                document.querySelectorAll('.user-dropdown.show').forEach(d => {
+                    if (d !== dropdown) d.classList.remove('show');
+                });
                 dropdown.classList.toggle('show');
             });
             
-            // Закрываем при клике вне меню
-            document.addEventListener('click', function closeDropdown(e) {
+            document.removeEventListener('click', window._closeUserMenu);
+            window._closeUserMenu = function(e) {
                 if (!userMenu.contains(e.target)) {
                     dropdown.classList.remove('show');
                 }
-            });
+            };
+            document.addEventListener('click', window._closeUserMenu);
         }
     } else {
         if (authButtons) authButtons.style.display = 'block';
@@ -798,6 +803,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupSearch();
     mobileMenu();
     
+    // Корзина
     const cartBtn = document.querySelector('.cart-btn');
     if (cartBtn) {
         cartBtn.addEventListener('click', (e) => {
@@ -813,20 +819,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             dropdown.classList.remove('show');
         }
     });
-    // Закрываем меню при нажатии Escape
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            document.querySelectorAll('.user-dropdown.show').forEach(d => {
-                d.classList.remove('show');
-            });
-            document.querySelectorAll('.cart-dropdown.show').forEach(d => {
-                d.classList.remove('show');
-            });
-        }
-    });
+    
     const checkoutBtn = document.getElementById('checkoutBtn');
     if (checkoutBtn) checkoutBtn.addEventListener('click', checkout);
     
     updateCartBadge();
 });
-    

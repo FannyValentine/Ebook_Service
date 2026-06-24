@@ -1358,3 +1358,23 @@ h2 {
     margin: 0 8px;
     color: #cbd5e1;
 }
+/* ========== ИСПРАВЛЕНИЕ БЕЛЫХ ПОЛЕЙ ПОД ФУТЕРОМ ========== */
+html, body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+.footer {
+    flex-shrink: 0;
+    margin-top: auto;
+}

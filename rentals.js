@@ -227,8 +227,6 @@ function filterRentals() {
 }
 
 // ========== ФУНКЦИИ ДЛЯ РАБОТЫ С АРЕНДОЙ ==========
-
-// Возврат книги
 async function returnBook(rentalId) {
     if (!confirm('Вы уверены, что хотите вернуть эту книгу?')) return;
     
@@ -256,7 +254,6 @@ async function returnBook(rentalId) {
     }
 }
 
-// Продление аренды
 async function extendRental(rentalId, currentEndDate) {
     const days = parseInt(prompt('На сколько дней продлить аренду? (7, 14 или 30 дней)', '7'));
     
@@ -304,12 +301,20 @@ function renderRentals() {
     
     if (!container) return;
     
+    // Проверяем, что аренды загружены
+    if (!allRentals || allRentals.length === 0) {
+        container.innerHTML = '';
+        if (emptyState) emptyState.style.display = 'block';
+        if (resultsCount) resultsCount.textContent = 'Нет аренд';
+        return;
+    }
+    
     const now = new Date();
     
     if (filteredRentals.length === 0) {
         container.innerHTML = '';
         if (emptyState) emptyState.style.display = 'block';
-        if (resultsCount) resultsCount.textContent = 'Нет аренд';
+        if (resultsCount) resultsCount.textContent = 'Нет аренд по выбранному фильтру';
         return;
     }
     
@@ -404,52 +409,15 @@ function renderRentals() {
             </div>
         `;
     }).join('');
-    
-    // Добавляем обработчики для кнопок
-    document.querySelectorAll('.btn-return').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const id = parseInt(btn.dataset.id || btn.onclick?.toString().match(/\d+/)?.[0]);
-            if (id) returnBook(id);
-        });
-    });
-    
-    document.querySelectorAll('.btn-extend').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const id = parseInt(btn.dataset.id || btn.onclick?.toString().match(/\d+/)?.[0]);
-            const endDate = btn.dataset.endDate;
-            if (id && endDate) extendRental(id, endDate);
-        });
-    });
 }
 
 // Глобальные функции для inline обработчиков
 window.returnBook = returnBook;
 window.extendRental = extendRental;
 
-// ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
-function escapeHtml(str) {
-    if (!str) return '';
-    return str.replace(/[&<>]/g, function(m) {
-        if (m === '&') return '&amp;';
-        if (m === '<') return '&lt;';
-        if (m === '>') return '&gt;';
-        return m;
-    });
-}
-
+// ========== ПОИСК В АРЕНДЕ ==========
 function setupSearch() {
-    const searchToggle = document.getElementById('searchToggle');
-    const searchBar = document.getElementById('searchBar');
     const searchInput = document.getElementById('searchInput');
-    
-    if (searchToggle && searchBar) {
-        searchToggle.addEventListener('click', () => {
-            searchBar.classList.toggle('open');
-            if (searchBar.classList.contains('open')) {
-                searchInput?.focus();
-            }
-        });
-    }
     
     if (searchInput) {
         let searchTimeout;
@@ -469,6 +437,17 @@ function setupSearch() {
             }, 500);
         });
     }
+}
+
+// ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+    });
 }
 
 function mobileMenu() {
@@ -586,29 +565,32 @@ async function updateUserUI() {
     if (user) {
         if (authButtons) authButtons.style.display = 'none';
         if (userMenuContainer && userMenu) {
+            userMenuContainer.innerHTML = '';
             userMenuContainer.appendChild(userMenu);
             userMenu.style.display = 'block';
             if (userName) userName.textContent = user.username || user.email?.split('@')[0] || 'Пользователь';
             
-            // Добавляем обработчик клика по пользователю
             const userInfo = userMenu.querySelector('.user-info');
             const dropdown = userMenu.querySelector('.user-dropdown');
             
-            // Удаляем старые обработчики, чтобы не было дублирования
             const newUserInfo = userInfo.cloneNode(true);
             userInfo.parentNode.replaceChild(newUserInfo, userInfo);
             
-            newUserInfo.addEventListener('click', (e) => {
+            newUserInfo.addEventListener('click', function(e) {
                 e.stopPropagation();
+                document.querySelectorAll('.user-dropdown.show').forEach(d => {
+                    if (d !== dropdown) d.classList.remove('show');
+                });
                 dropdown.classList.toggle('show');
             });
             
-            // Закрываем при клике вне меню
-            document.addEventListener('click', function closeDropdown(e) {
+            document.removeEventListener('click', window._closeUserMenu);
+            window._closeUserMenu = function(e) {
                 if (!userMenu.contains(e.target)) {
                     dropdown.classList.remove('show');
                 }
-            });
+            };
+            document.addEventListener('click', window._closeUserMenu);
         }
     } else {
         if (authButtons) authButtons.style.display = 'block';
@@ -801,19 +783,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             dropdown.classList.remove('show');
         }
     });
+    
     const checkoutBtn = document.getElementById('checkoutBtn');
     if (checkoutBtn) checkoutBtn.addEventListener('click', checkout);
     
     updateCartBadge();
-    // Закрываем меню при нажатии Escape
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            document.querySelectorAll('.user-dropdown.show').forEach(d => {
-                d.classList.remove('show');
-            });
-            document.querySelectorAll('.cart-dropdown.show').forEach(d => {
-                d.classList.remove('show');
-            });
-        }
-    });
 });
